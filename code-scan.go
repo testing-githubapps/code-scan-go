@@ -1,17 +1,64 @@
 package main
 
 import (
-	"context"
+	//"context"
+	"flag"
 	"fmt"
-	"github.com/google/go-github/v52/github"
+	"log"
+	"os"
+	"time"
+
+	//"github.com/cli/go-gh/v2"
+	"github.com/cli/go-gh/v2/pkg/api"
+	graphql "github.com/cli/shurcooL-graphql"
+)
+
+var (
+	organization = flag.String("org", "", "organization name")
 )
 
 func main() {
-	client := github.NewClient(nil)
-	opt := &github.RepositoryListByOrgOptions{Type: "public"}
-	repos, _, err := client.Repositories.ListByOrg(context.Background(), "testing-githubapps", opt)
-	if err != nil {
-		fmt.Println(err)
+	required := []string{"org"}
+	flag.Parse()
+	for _, req := range required {
+		if flag.Lookup(req).Value.String() == "" {
+			log.Fatalf("missing required -%s argument/flag\n", req)
+		}
 	}
-	fmt.Println(repos)
+
+	opts := api.ClientOptions{
+		AuthToken:   os.Getenv("GITHUB_TOKEN"),
+		EnableCache: true,
+		Timeout:     5 * time.Second,
+		Log:         os.Stdout,
+	}
+	client, err := api.NewGraphQLClient(opts)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var query struct {
+		Repository struct {
+			Refs struct {
+				Nodes []struct {
+					Name string
+				}
+			} `graphql:"refs(refPrefix: $refPrefix, last: $last)"`
+			Languages struct {
+				Nodes []struct {
+					Name string
+				}
+			} `graphql:"languages(first: 10)"`
+		} `graphql:"repository(owner: $owner, name: $name)"`
+	}
+	variables := map[string]interface{}{
+		"refPrefix": graphql.String("refs/heads/"),
+		"last":      graphql.Int(30),
+		"owner":     graphql.String(*organization),
+		"name":      graphql.String("importer-labs"),
+	}
+	err = client.Query("Repository", &query, variables)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(query)
 }
