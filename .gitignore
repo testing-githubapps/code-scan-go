@@ -17,5 +17,6 @@ vendor/
 # Go workspace file
 go.work
 
-# environment files
-.env
+# ignore .DS_Store
+.DS_Store
+bin/*

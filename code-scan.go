@@ -1,14 +1,12 @@
 package main
 
 import (
-	//"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
-	//"github.com/cli/go-gh/v2"
 	"github.com/cli/go-gh/v2/pkg/api"
 	graphql "github.com/cli/shurcooL-graphql"
 )
@@ -47,11 +45,12 @@ func main() {
 				Nodes []struct {
 					Name string
 				}
-			} `graphql:"languages(first: 10)"`
+			} `graphql:"languages(first: $first)"`
 		} `graphql:"repository(owner: $owner, name: $name)"`
 	}
 	variables := map[string]interface{}{
 		"refPrefix": graphql.String("refs/heads/"),
+		"first":     graphql.Int(10),
 		"last":      graphql.Int(30),
 		"owner":     graphql.String(*organization),
 		"name":      graphql.String("importer-labs"),
