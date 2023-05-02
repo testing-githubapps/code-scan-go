@@ -22,7 +22,9 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.version }}
-
+    - name: Tidy
+      run: go mod tidy -v ./...
+      
     - name: Build
       run: go build -v ./...
 
