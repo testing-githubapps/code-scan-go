@@ -1,0 +1,14 @@
+name: testing environments
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:  
+      - name: testing 
+        run: |
+          VERSION=$(1 + 1)
+          echo "VERSION=$(1 + 1)" >> $GITHUB_ENV
+          echo ${{ env.VERSION }}
