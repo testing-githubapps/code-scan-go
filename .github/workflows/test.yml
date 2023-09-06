@@ -9,8 +9,7 @@ jobs:
     steps:  
       - name: testing 
         run: |
-          VERSION=1
           echo "VERSION=1" >> $GITHUB_ENV
-          echo "${{ env.VERSION }}"
+          echo $VERSION
       - name: echoing
         run: echo ${{ env.VERSION }}
