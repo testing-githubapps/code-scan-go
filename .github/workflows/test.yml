@@ -11,4 +11,6 @@ jobs:
         run: |
           VERSION=1
           echo "VERSION=1" >> $GITHUB_ENV
-          echo ${{ env.VERSION }}
+          echo "${{ env.VERSION }}"
+      - name: echoing
+        run: echo ${{ env.VERSION }}
